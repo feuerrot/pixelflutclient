@@ -4,7 +4,7 @@ import socket
 import sys
 
 xstart = 0
-xstop  = 600
+xstop  = 800
 xstep  = 1
 ystart = 0
 ystop  = 600
@@ -23,16 +23,18 @@ def text(x, y, t):
 def pixl(x, y, r, g, b):
 	return 'PX {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
 
+# makecon makes a new connection for every text - higher speed for text
 def makecon(text):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect((host,port))
 	s.sendall(text)
 	s.close()
 
+# send reuses a connection - higher speed for pixel
 def send(text):
 	sock.sendall(text)
 
 while True:
 	for x in range(xstart, xstop, xstep):
 		for y in range(ystart, ystop, ystep):
-			send(pixl(x, y, x%255, y%255, 255-(x-y)%255))
+			send(pixl(x, y, x*7%255, y%255, 255-(x-y)%255))
