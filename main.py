@@ -39,10 +39,10 @@ def send(command):
 	sock.sendall(command)
 
 def text(x, y, t):
-	makecon(command_text(x, y, t)
+	makecon(command_text(x, y, t))
 
 def pixl(x, y, r, g, b):
-	send(command_pixel(x, y, r, g, b)
+	send(command_pixel(x, y, r, g, b))
 
 def getsize(s):
 	s.sendall('SIZE\n'.encode('UTF-8'))
