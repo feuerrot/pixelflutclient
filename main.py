@@ -66,12 +66,12 @@ def noise():
 ######################
 draw = noise
 
-while True:
-	try:
+try:
+	while True:
 		draw()
-	except KeyboardInterrupt:
-		print('Beende Programm')
-		exit(0)
-	except:
-		print("Unexpected error:", sys.exc_info()[0])
-		exit(1)
+except KeyboardInterrupt:
+	print('Beende Programm')
+	exit(0)
+except:
+	print("Unexpected error:", sys.exc_info()[0])
+	exit(1)
