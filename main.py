@@ -55,6 +55,12 @@ def getsize(s):
 # define various draw functions here
 def noise():
 	pixl(rnd(xstop), rnd(ystop), rnd(255), rnd(255), rnd(255))
+def blackrnd():
+	pixl(rnd(xstop), rnd(ystop), 0, 0, 0)
+def blacklin():
+	for y in range(ystart, ystop, ystep):
+		for x in range(xstart, xstop, xstep):
+			pixl(x, y, 0, 0, 0)
 # define various draw functions above
 
 
@@ -64,7 +70,7 @@ def noise():
 ######################
 # Set the drawfunction
 ######################
-draw = noise
+draw = blacklin
 
 try:
 	while True:
