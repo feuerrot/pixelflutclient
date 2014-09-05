@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.3
+#!/usr/bin/env python3
 import random
 import socket
 import sys
@@ -39,7 +39,7 @@ def send(command):
 	sock.sendall(command)
 
 def text(x, y, t):
-	makecon(command_text(x, y, t))
+	msend(command_text(x, y, t))
 
 def pixl(x, y, r, g, b):
 	send(command_pixel(x, y, r, g, b))
@@ -53,14 +53,30 @@ def getsize(s):
 
 
 # define various draw functions here
+def block(x, y, dx, dy, r, g, b):
+	for xa in range(dx):
+		for ya in range(dy):
+			pixl(x+xa, y+ya, r, g, b)
+
 def noise():
 	pixl(rnd(xstop), rnd(ystop), rnd(255), rnd(255), rnd(255))
+
+def noiselin():
+	for y in range(ystart, ystop, ystep):
+		for x in range(xstart, xstop, xstep):
+			pixl(x, y, rnd(255), rnd(255), rnd(255))
 def blackrnd():
 	pixl(rnd(xstop), rnd(ystop), 0, 0, 0)
+
 def blacklin():
 	for y in range(ystart, ystop, ystep):
 		for x in range(xstart, xstop, xstep):
 			pixl(x, y, 0, 0, 0)
+def blockrnd():
+	block(rnd(xstop), rnd(ystop), rnd(50), rnd(50), rnd(255), rnd(255), rnd(255))
+
+def textspam():
+	text(rnd(xstop), rnd(ystop), 'sap ist cool')
 # define various draw functions above
 
 
@@ -70,7 +86,7 @@ def blacklin():
 ######################
 # Set the drawfunction
 ######################
-draw = blacklin
+draw = noise
 
 try:
 	while True:
