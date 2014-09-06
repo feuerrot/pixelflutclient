@@ -7,10 +7,10 @@ import time
 from PIL import Image
 
 xstart = 0
-xstop  = 800
+xstop  = 1024
 xstep  = 1
 ystart = 0
-ystop  = 600
+ystop  = 768
 ystep  = 1
 
 host = sys.argv[1]
@@ -32,7 +32,7 @@ def rnd(a):
 	return random.randint(0,a)
 
 def command_pixel(x, y, r, g, b):
-	return 'PX {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
+	return 'px {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
 
 # send reuses a connection - higher speed for pixel
 def send(command):
@@ -51,7 +51,7 @@ def getsize(s):
 # image draw functions only
 
 # Get the size of the image
-(xstop, ystop) = getsize(sock)
+#(xstop, ystop) = getsize(sock)
 
 ######################
 # Set the drawfunction
@@ -61,9 +61,8 @@ def getsize(s):
 
 def addpixel():
 	while True:
-		xstart = int(rnd(xstop/2))
-		ystart = int(rnd(ystop/2))
-		print(xstart,ystart)
+		xstart = xstop//2 - ix//2
+		ystart = ystop//2 - iy//2
 		queuelist = list()
 		for x in range(ix):
 			for y in range(iy):
@@ -87,7 +86,7 @@ try:
 	addpxl = threading.Thread(target=addpixel)
 	addpxl.daemon = True
 	addpxl.start()
-
+	
 	printpxl = threading.Thread(target=printpixl)
 	printpxl.daemon = True
 	printpxl.start()
