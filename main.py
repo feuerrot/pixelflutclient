@@ -2,12 +2,13 @@
 import random
 import socket
 import sys
+import time
 
 xstart = 0
-xstop  = 800
+xstop  = 1024
 xstep  = 1
 ystart = 0
-ystop  = 600
+ystop  = 768
 ystep  = 1
 
 host = sys.argv[1]
@@ -22,10 +23,10 @@ def rnd(a):
 	return random.randint(0,a)
 
 def command_text(x, y, t):
-	return 'TEXT {} {} {}\n'.format(x, y, t).encode('UTF-8')
+	return 'text {} {} {}\n'.format(x, y, t).encode('UTF-8')
 
 def command_pixel(x, y, r, g, b):
-	return 'PX {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
+	return 'px {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
 
 # makecon makes a new connection for every text - higher speed for text
 def makecon(command):
@@ -39,10 +40,11 @@ def send(command):
 	sock.sendall(command)
 
 def text(x, y, t):
-	msend(command_text(x, y, t))
+	send(command_text(x, y, t))
 
 def pixl(x, y, r, g, b):
 	send(command_pixel(x, y, r, g, b))
+	print(command_pixel(x, y, r, g, b))
 
 def getsize(s):
 	s.sendall('SIZE\n'.encode('UTF-8'))
@@ -65,8 +67,15 @@ def noiselin():
 	for y in range(ystart, ystop, ystep):
 		for x in range(xstart, xstop, xstep):
 			pixl(x, y, rnd(255), rnd(255), rnd(255))
-def blackrnd():
+def whiternd():
 	pixl(rnd(xstop), rnd(ystop), 0, 0, 0)
+
+def whitelin():
+	for y in range(ystart, ystop, ystep):
+		for x in range(xstart, xstop, xstep):
+			pixl(x, y, 255, 255, 255)
+def blackrnd():
+	pixl(rnd(xstop), rnd(ystop), 255, 255, 255)
 
 def blacklin():
 	for y in range(ystart, ystop, ystep):
@@ -76,21 +85,23 @@ def blockrnd():
 	block(rnd(xstop), rnd(ystop), rnd(50), rnd(50), rnd(255), rnd(255), rnd(255))
 
 def textspam():
-	text(rnd(xstop), rnd(ystop), 'sap ist cool')
+	text(rnd(xstop), rnd(ystop), 'y u no c&libowfat?')
+
 # define various draw functions above
 
 
 # Get the size of the image
-(xstop, ystop) = getsize(sock)
+#(xstop, ystop) = getsize(sock)
 
 ######################
 # Set the drawfunction
 ######################
-draw = noise
+draw = blockrnd
 
 try:
 	while True:
 		draw()
+		time.sleep(0.1)
 except KeyboardInterrupt:
 	print('Beende Programm')
 	exit(0)
