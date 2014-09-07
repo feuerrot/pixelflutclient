@@ -3,6 +3,7 @@ import random
 import socket
 import sys
 import time
+import math
 
 xstart = 0
 xstop  = 1024
@@ -44,7 +45,7 @@ def text(x, y, t):
 
 def pixl(x, y, r, g, b):
 	send(command_pixel(x, y, r, g, b))
-	print(command_pixel(x, y, r, g, b))
+	#print(command_pixel(x, y, r, g, b))
 
 def getsize(s):
 	s.sendall('SIZE\n'.encode('UTF-8'))
@@ -59,6 +60,12 @@ def block(x, y, dx, dy, r, g, b):
 	for xa in range(dx):
 		for ya in range(dy):
 			pixl(x+xa, y+ya, r, g, b)
+
+def colorbow():
+	for x in range(xstart, xstop, xstep):
+		for y in range(ystart, ystop, ystep):
+			#pixl(x, y, 30,30,30)
+			pixl(x, y, int((4*y-x)%255), int((x+y)%255), int((3*x-y*5)%255)) #int(((math.cos((3*y+2*x)%2*math.pi)+1)/2)*255), int(((math.sin((y+2*x)%2*math.pi)+1)/2)*255))
 
 def noise():
 	pixl(rnd(xstop), rnd(ystop), rnd(255), rnd(255), rnd(255))
@@ -85,18 +92,18 @@ def blockrnd():
 	block(rnd(xstop), rnd(ystop), rnd(50), rnd(50), rnd(255), rnd(255), rnd(255))
 
 def textspam():
-	text(rnd(xstop), rnd(ystop), 'y u no c&libowfat?')
+	text(rnd(xstop), rnd(ystop), 'Könnt Ihr das mal in c neuschreiben?')
 
 # define various draw functions above
 
 
 # Get the size of the image
-#(xstop, ystop) = getsize(sock)
+(xstop, ystop) = getsize(sock)
 
 ######################
 # Set the drawfunction
 ######################
-draw = blockrnd
+draw = textspam
 
 try:
 	while True:
