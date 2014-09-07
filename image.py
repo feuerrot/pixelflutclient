@@ -51,7 +51,7 @@ def getsize(s):
 # image draw functions only
 
 # Get the size of the image
-#(xstop, ystop) = getsize(sock)
+(xstop, ystop) = getsize(sock)
 
 ######################
 # Set the drawfunction
@@ -60,38 +60,30 @@ def getsize(s):
 
 
 def addpixel():
-	while True:
-		xstart = xstop//2 - ix//2
-		ystart = ystop//2 - iy//2
-		queuelist = list()
-		for x in range(ix):
-			for y in range(iy):
-				(r, g, b) = img.getpixel((x,y))
-				queuelist.append((x+xstart,y+ystart,r,g,b))
-		pixellist.append(queuelist)
-		while (len(pixellist) > 2):
-			time.sleep(2)
+	print('addpixel')
+	xstart = xstop//2 - ix//2
+	ystart = ystop//2 - iy//2
+	for x in range(ix):
+		for y in range(iy):
+			(r, g, b) = img.getpixel((x,y))
+			pixellist.append([x+xstart,y+ystart,r,g,b])
+	print('addedpixels')
 
 def printpixl():
+	addpixel()
 	while True:
-		try:
-			locallist = pixellist.pop()
-			for (x,y,r,g,b) in locallist:
+		random.shuffle(pixellist)
+		locallist = pixellist[:int(len(pixellist)/10)]
+		for elem in locallist:
+			(x, y, r, g, b) = locallist.pop()
+			if (r != 255 and b != 255 and g != 255):
 				pixl(x, y, r, g, b)
-		except:
-			pass
 
 
 try:
-	addpxl = threading.Thread(target=addpixel)
-	addpxl.daemon = True
-	addpxl.start()
-	
 	printpxl = threading.Thread(target=printpixl)
 	printpxl.daemon = True
 	printpxl.start()
-
-	addpxl.join()
 	printpxl.join()
 
 except KeyboardInterrupt:
