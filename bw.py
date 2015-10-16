@@ -62,18 +62,19 @@ def getsize(s):
 def addpixel():
 	print('Img:  {}x{} px'.format(ix, iy))
 	print('addpixel')
-	xstart = 30#xstop//2 - ix//2
-	ystart = 60#ystop//2 - iy//2
+	xstart = xstop//2 - ix//2
+	ystart = ystop//2 - iy//2
 	for x in range(ix):
 		for y in range(iy):
-			(r, g, b) = img.getpixel((x,y))
-			pixellist.append([x+xstart,y+ystart,r,g,b])
+			bw = img.getpixel((x,y))
+			pixellist.append([x+xstart,y+ystart,bw,bw,bw])
 	print('addedpixels')
 
 def printpixl():
 	addpixel()
+	random.shuffle(pixellist)
 	while True:
-		random.shuffle(pixellist)
+		time.sleep(1)
 		for elem in pixellist:
 			(x, y, r, g, b) = elem
 			pixl(x, y, r, g, b)

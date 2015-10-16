@@ -27,7 +27,7 @@ def command_text(x, y, t):
 	return 'text {} {} {}\n'.format(x, y, t).encode('UTF-8')
 
 def command_pixel(x, y, r, g, b):
-	return 'px {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
+	return 'PX {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
 
 # makecon makes a new connection for every text - higher speed for text
 def makecon(command):
@@ -44,8 +44,11 @@ def text(x, y, t):
 	send(command_text(x, y, t))
 
 def pixl(x, y, r, g, b):
-	send(command_pixel(x, y, r, g, b))
+	send(command_pixel(x, y, int(r%256), int(g%256), int(b%256)))
 	#print(command_pixel(x, y, r, g, b))
+
+def pixlbw(x, y, bw):
+	send(command_pixel(x, y, int(bw%256), int(bw%256), int(bw%256)))
 
 def getsize(s):
 	s.sendall('SIZE\n'.encode('UTF-8'))
@@ -54,6 +57,11 @@ def getsize(s):
 	print('Size: {}x{} px'.format(xsize,ysize))
 	return (int(xsize), int(ysize))
 
+
+def colorize(x, y):
+	#if (x % 3 == y % 3):
+	#	pixlbw(x, y, 255)
+	pixl(x, y, math.cos(math.sin(math.tan(x+y)))/(math.cos(math.tan(math.sin(y)))+1)*255, math.sin(math.cos(math.tan((x*y)%math.pi+11)))*math.sin(math.cos(math.tan(y%255))), (ystop-y+1)/(xstop-x+1)*255)
 
 # define various draw functions here
 def block(x, y, dx, dy, r, g, b):
@@ -64,9 +72,7 @@ def block(x, y, dx, dy, r, g, b):
 def colorbow():
 	for x in range(xstart, xstop, xstep):
 		for y in range(ystart, ystop, ystep):
-			#pixl(x, y, 30,30,30)
-			pixl(x, y, int((4*y-x)%255), int((x+y)%255), int((3*x-y*5)%255)) #int(((math.cos((3*y+2*x)%2*math.pi)+1)/2)*255), int(((math.sin((y+2*x)%2*math.pi)+1)/2)*255))
-
+			colorize(x,y)
 def noise():
 	pixl(rnd(xstop), rnd(ystop), rnd(255), rnd(255), rnd(255))
 
@@ -88,8 +94,9 @@ def blacklin():
 	for y in range(ystart, ystop, ystep):
 		for x in range(xstart, xstop, xstep):
 			pixl(x, y, 0, 0, 0)
+		#locallist = pixellist[]#[:int(len(pixellist)/2)]
 def blockrnd():
-	block(rnd(xstop), rnd(ystop), rnd(50), rnd(50), rnd(255), rnd(255), rnd(255))
+	block(rnd(xstop), rnd(ystop), rnd(10), rnd(10), rnd(255), rnd(255), rnd(255))
 
 def textspam():
 	text(rnd(xstop), rnd(ystop), 'Könnt Ihr das mal in c neuschreiben?')
@@ -103,12 +110,11 @@ def textspam():
 ######################
 # Set the drawfunction
 ######################
-draw = textspam
+draw = blockrnd
 
 try:
 	while True:
 		draw()
-		time.sleep(0.1)
 except KeyboardInterrupt:
 	print('Beende Programm')
 	exit(0)
