@@ -83,9 +83,10 @@ try:
 	threads.append(pixelsender(host, port))
 
 	for elem in threads:
+		elem.daemon = True
 		elem.start()
-	for elem in threads:
-		elem.join()
+	while True:
+		time.sleep(1)
 
 except KeyboardInterrupt:
 	print('Beende Programm')
