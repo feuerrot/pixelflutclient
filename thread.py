@@ -6,16 +6,21 @@ import threading
 import time
 from PIL import Image
 
-xstart = 0
+xstart = None
 xstop  = 192
 xstep  = 1
-ystart = 0
+ystart = None
 ystop  = 32
 ystep  = 1
 
 host = sys.argv[1]
 port = int(sys.argv[2])
 image = str(sys.argv[3])
+try:
+	xstart = int(sys.argv[4])
+	ystart = int(sys.argv[5])
+except:
+	pass
 
 threads = []
 commands = []
@@ -26,19 +31,30 @@ class pixelsender(threading.Thread):
 	
 	def addpixel(self):
 		self.cmd = commands[:]
+	
+	def connect(self):
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.connect((host,port))
 
 	def run(self):
-		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.addpixel()
-		sock.connect((host,port))
 		random.shuffle(self.cmd)
+		self.connect()
 		subcmd = []
 		while True:
-			for elem in self.cmd:
-				subcmd.append(elem)
-				if len(subcmd) > 128:
-					sock.sendall(b"".join(subcmd))
-					subcmd = []
+			try:
+				for elem in self.cmd:
+					subcmd.append(elem)
+					if len(subcmd) > 65*100:
+						self.sock.sendall(b"".join(subcmd))
+						subcmd = []
+			except BrokenPipeError:
+				sys.stdout.write('.')
+				sys.stdout.flush()
+				self.connect()
+			except ConnectionResetError:
+				time.sleep(5)
+				self.connect()
 
 img = Image.open(image)
 (a, b, ix, iy) = img.getbbox()
@@ -49,13 +65,13 @@ def rnd(a):
 	return random.randint(0,a)
 
 def command_pixel(x, y, r, g, b):
-	return 'PX {} {} {:02X}{:02X}{:02X}\n'.format(x, y, r, g, b).encode('UTF-8')
+	return 'PX {} {} {:02X}{:02X}{:02X}\n'.format(int(x), int(y), r, g, b).encode('UTF-8')
 
 # send reuses a connection - higher speed for pixel
 def getsize(s):
 	s.sendall('SIZE\n'.encode('UTF-8'))
 	msg = s.recv(64).decode('UTF-8')
-	(foo, xsize, ysize) = msg.split()
+	(_, xsize, ysize) = msg.strip().split()
 	print('Size: {}x{} px'.format(xsize,ysize))
 	return (int(xsize), int(ysize))
 
@@ -65,13 +81,17 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 	(xstop, ystop) = getsize(s)
 
 def addpixel():
+	global xstart
+	global ystart
 	print('Img:  {}x{} px'.format(ix, iy))
 	print('addpixel')
-	xstart = 0#xstop - ix
-	ystart = 0#ystop - iy
-	for x in range(xstop):
-		for y in range(ystop):
-			(r, g, b) = img.getpixel((x%ix,y%iy))
+	if xstart == None or ystart == None:
+		xstart = xstop/2 - ix/2
+		ystart = ystop/2 - iy/2
+	print('xstart: {}\nystart: {}'.format(xstart, ystart))
+	for x in range(ix):
+		for y in range(iy):
+			(r, g, b) = img.getpixel((x,y))
 			commands.append(command_pixel(x+xstart, y+ystart, r, g, b))
 	print('addedpixels')
 
